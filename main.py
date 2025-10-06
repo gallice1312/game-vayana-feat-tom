@@ -1,68 +1,80 @@
 #import module pygame
 import pygame
-import os 
-
-
-
-class Player(object):
-    """Spawn player and defined hit box"""
-    def __init__(self,x,y,width,height):
-        
-        #position
-        self.x = x
-        self.y = y
-        #width and height of player
-        self.width = width
-        self.height = height
-        self.vel = 5
-        #begening state
-        self.isJump = False
-        self.left = False
-        self.right = False
-        self.walkCount = 0
-        self.jumpCount = 10
-        self.standing = True
-        #define hitbox
-        self.hitbox = (self.x + 17, self.y + 11, 29, 52)
-        
-        playerImage =  pygame.transform.scale((pygame.image.load('mario.png')),(self.width,self.height))
-        screen.blit(playerImage, (100,100)) 
-        pygame.sprite.Sprite.__init__(self)
-        self.images = []
-
-        pygame.image.load('mario.png').convert()
-        
-        
-
-
-#class enemy(object):
-
-#class projectile(object):
-
+from pygame.locals import *
 
 #pygame setup 
 pygame.init()
 
-screen = pygame.display.set_mode((700,700))
 running = True
 
+#set screen
+screen = pygame.display.set_mode((700,700))
+#set screen color
+bg_image = pygame.image.load('background.png')
+
+#set clock
+clock = pygame.time.Clock()
+
+#player direction
+direction = True
+
+# velocity of player's movement
+velocity = 12
+x =360
+
+bullets = [] # This goes right above the while loop
+
+def projectile(x,y):
+    pygame.draw.circle(screen,(255,0,0),(x,y), 10)
+
+
+
 while running:
+
+    
+    # Set the frame rates to 60 fps
+    clock.tick(60)
+    
     #exit with x on the window
     for event in pygame.event.get():
+
+        
         if event.type == pygame.QUIT:
             running = False
-    
-    #set screen color
-    bg = (255,255,153)
-    screen.fill(bg)
+            pygame.quit()
+            quit()
 
-    #add player
-    player = Player(100,100,50,50)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                direction = True
+            elif event.key == pygame.K_LEFT:
+                direction = False
+
     
+
+    key_pressed_is = pygame.key.get_pressed()
+    # Changing the coordinates
+    # of the player
+    if event.type==KEYDOWN:
+
+        if key_pressed_is[K_LEFT]:
+            x -= 10
+        if key_pressed_is[K_RIGHT]:
+            x += 10
+
+        if key_pressed_is[K_SPACE]:
+            projectile(x,100)
+
+
+    screen.blit(bg_image,(0,0))
+
+    #set player
+    image =  pygame.transform.scale((pygame.image.load('mario.png')),(50,50))
+    #reset background
+    screen.blit(image, (x,580))
+ 
+        
     pygame.display.update()
 
-  
-    pygame.display.flip()
+    #pygame.display.flip() 
 
-
-pygame.quit()
