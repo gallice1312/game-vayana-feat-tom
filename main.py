@@ -24,9 +24,9 @@ x =360
 
 bullets = [] # This goes right above the while loop
 
-def projectile(x,y):
-    pygame.draw.circle(screen,(255,0,0),(x,y), 10)
-
+def projectile(x):
+    fireball_image =  pygame.transform.scale((pygame.image.load('fireball.png')),(10,10))
+    screen.blit(fireball_image, (x,400))
 
 
 while running:
@@ -63,7 +63,8 @@ while running:
             x += 10
 
         if key_pressed_is[K_SPACE]:
-            projectile(x,100)
+            projectile(x)
+
 
 
     screen.blit(bg_image,(0,0))
@@ -72,6 +73,7 @@ while running:
     image =  pygame.transform.scale((pygame.image.load('mario.png')),(50,50))
     #reset background
     screen.blit(image, (x,580))
+    
  
         
     pygame.display.update()
