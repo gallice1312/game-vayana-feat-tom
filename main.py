@@ -4,30 +4,36 @@ import os
 
 
 
-class player(object):
+class Player(object):
     """Spawn player and defined hit box"""
     def __init__(self,x,y,width,height):
+        
+        #position
         self.x = x
         self.y = y
+        #width and height of player
         self.width = width
         self.height = height
         self.vel = 5
+        #begening state
         self.isJump = False
         self.left = False
         self.right = False
         self.walkCount = 0
         self.jumpCount = 10
         self.standing = True
-        #hitbox
-        self.hitbox = (self.x + 17, self.y + 11, 29, 52) 
-
+        #define hitbox
+        self.hitbox = (self.x + 17, self.y + 11, 29, 52)
+        
+        playerImage =  pygame.transform.scale((pygame.image.load('mario.png')),(self.width,self.height))
+        screen.blit(playerImage, (100,100)) 
         pygame.sprite.Sprite.__init__(self)
         self.images = []
 
-        img = pygame.image.load(os.path.join('images', 'mario.png')).convert()
-        self.images.append(img)
-        self.image = self.images[0]
-        self.rect = self.image.get_rect()
+        pygame.image.load('mario.png').convert()
+        
+        
+
 
 #class enemy(object):
 
@@ -36,6 +42,7 @@ class player(object):
 
 #pygame setup 
 pygame.init()
+
 screen = pygame.display.set_mode((700,700))
 running = True
 
@@ -46,9 +53,15 @@ while running:
             running = False
     
     #set screen color
-    screen.fill((255,255,153))
-    
+    bg = (255,255,153)
+    screen.fill(bg)
 
+    #add player
+    player = Player(100,100,50,50)
+    
+    pygame.display.update()
+
+  
     pygame.display.flip()
 
 
