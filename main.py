@@ -3,6 +3,7 @@
 import pygame
 from pygame.locals import *
 import math
+import random
 
 #pygame setup 
 pygame.init()
@@ -18,7 +19,7 @@ bg_image = pygame.image.load('background.png')
 bg_menu = pygame.image.load("backmenu2.png")
 
 #enemy image
-enemy_image = pygame.transform.scale((pygame.image.load('mario.png')),(60,60))
+enemy_image = pygame.transform.scale((pygame.image.load('spaceship.png')),(60,60))
 
 game_state = "menu" 
 
@@ -45,9 +46,10 @@ player_speed = 10
 x =350
 y=900
 player_life = 3
+
 """--- ENEMY SETTINGS ---"""
-numb_enemy = [[50,50,-1],[250,50,-1],[300,500,1],[500,630,1],[200,100,-1]]
-enemy_speed = 5
+numb_enemy = [[50,50,-1],[250,50,-1],[300,500,1],[500,630,1],[200,100,-1],[800,50,1],[250,50,-1],[600,100,-1],[800,450,1],[120,560,-1]]
+enemy_speed = 7
 
 
 """--- COLISION --"""
@@ -128,7 +130,7 @@ while running:
         if keys[K_LEFT] and x > 0:
             x -= player_speed
             direction = False          #left
-        if keys[K_RIGHT] and x < 1520:
+        if keys[K_RIGHT] and x < 1500:
             x += player_speed
             direction = True           #right
         if keys[K_SPACE]:
@@ -150,9 +152,9 @@ while running:
         for enemy in numb_enemy:
             enemy[0] += enemy[2] * enemy_speed  # side move
             # Rebondir sur les bords
-            if enemy[0] <= 0 or enemy[0] >= 1536:
+            if enemy[0] <= 0 or enemy[0] >= 1500:
                 enemy[2] *= -1  # reset enemy direction
-                enemy[1] += 10  # go down a lil at every corner
+                enemy[1] += 40  # go down a lil at every corner
             
             
             
@@ -189,6 +191,7 @@ while running:
             """--- COLISION ENEMY → PLAYER ---"""
             if player_life >0:
                 if colision(x,enemy[0],y,enemy[1]):
+                    numb_enemy.remove(enemy)
                     player_life -= 1
             if player_life == 0 :
                 game_state = 'loose'
