@@ -1,6 +1,8 @@
 #import module pygame
 import pygame
 from pygame.locals import *
+import math
+
 #pygame setup 
 pygame.init()
 running = True
@@ -18,45 +20,50 @@ enemy_image = pygame.transform.scale((pygame.image.load('spaceship.png')),(60,60
 
 """--- SET SCREEN ---"""
 #set screen
-screen = pygame.display.set_mode((700,700))
-screen_update = pygame.transform.scale_by(bg_image,(700,700))
+screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
 
 #set clock
 clock = pygame.time.Clock()
-#Score
-score_player = 0
-player_life = 3
+
+
+
 
 """--- PLAYER SETTINGS ---"""
 #player direction
 direction = True
 # velocity of player's movement
 player_speed = 10
-x =360
+x =350
 y=580
+player_life = 3
 
-<<<<<<< Updated upstream
-bullets = [] # This goes right above the while loop
-
-def projectile(x,y):
-    pygame.draw.circle(screen,(255,0,0),(x,y), 10)
-
-=======
 """--- ENEMY SETTINGS ---"""
 numb_enemy = [[50,50,-1],[250,50,-1],[200,100,1]]
 enemy_speed = 5
->>>>>>> Stashed changes
 
 
 
-"""--- FUNCTION --"""
+"""--- COLISION --"""
 
 def colision(x,enemy_x,y,enemy_y):
-    if abs(x-enemy_x) <= 2 or abs(y - enemy_y) <=2:
+    distance = math.sqrt((math.pow(x - enemy_x, 2)) + (math.pow(y - enemy_y, 2)))
+    if distance <= 50:
         return True
-    else :
+    else:
         return False
 
+"""--- FONT ---"""
+font = pygame.font.Font('freesansbold.ttf', 20)
+
+
+"""--- SHOW SCORE ---"""
+#Score
+score_player = 0
+def show_score(x,y):
+    score = font.render("Points: " + str(score_player), True, (255,255,255))
+    screen.blit(score, (x , y ))
+
+"""--- DRAW ---"""
 def draw_background():
     screen.blit(bg_image,(0,0))
 
@@ -98,7 +105,7 @@ while running:
     if keys[K_SPACE]:
     # create new fireball
         #not more than 10 fireball displayed on the screen
-        if len(bullets) < 10:
+        if len(bullets) < 5:
             bullet_x = x + 10  # on the player
             bullet_y = y 
             bullets.append([bullet_x, bullet_y])
@@ -126,37 +133,20 @@ while running:
     draw_background()
     #draww player
     draw_player(x,y)
-    
-<<<<<<< Updated upstream
-
-    key_pressed_is = pygame.key.get_pressed()
-    # Changing the coordinates
-    # of the player
-    if event.type==KEYDOWN:
-
-        if key_pressed_is[K_LEFT]:
-            x -= 10
-        if key_pressed_is[K_RIGHT]:
-            x += 10
-
-        if key_pressed_is[K_SPACE]:
-            projectile(x,100)
-
-
-    screen.blit(bg_image,(0,0))
-
-    #set player
-    image =  pygame.transform.scale((pygame.image.load('mario.png')),(50,50))
-    #reset background
-    screen.blit(image, (x,580))
- 
-=======
+    #draw score
+    show_score(10,10)
     
     #draw fire ball
     for bullet in bullets:
         screen.blit(fireball_image, (bullet[0], bullet[1]))
 
-        """--- COLISION PLAYER → ENEMY ---"""
+        """--- COLISION FIREBAL L → ENEMY ---"""
+        if len(numb_enemy) >0:
+            if colision(bullet[0],enemy[0],bullet[1],enemy[1]):
+                score_player +=1
+                show_score(10,10)
+        else :
+            print('YOU WIN')
     
         
 
@@ -166,9 +156,13 @@ while running:
         screen.blit(enemy_image, (enemy[0], enemy[1]))
 
         """--- COLISION ENEMY → PLAYER ---"""
-         
-        
->>>>>>> Stashed changes
+        if player_life >0:
+            if colision(x,enemy[0],y,enemy[1]):
+                player_life -= 1
+        if player_life == 0 :
+            print("YOU LOOSE")
+
+    
         
     pygame.display.update()
     #pygame.display.flip() 
