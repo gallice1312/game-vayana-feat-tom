@@ -25,7 +25,9 @@ screen = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
 #set clock
 clock = pygame.time.Clock()
 
+"""--- WIN SCREEN ---"""
 
+"""--- LOOSE SCREEN ---"""
 
 
 """--- PLAYER SETTINGS ---"""
@@ -47,7 +49,7 @@ enemy_speed = 5
 
 def colision(x,enemy_x,y,enemy_y):
     distance = math.sqrt((math.pow(x - enemy_x, 2)) + (math.pow(y - enemy_y, 2)))
-    if distance <= 50:
+    if distance <= 40:
         return True
     else:
         return False
@@ -62,6 +64,7 @@ score_player = 0
 def show_score(x,y):
     score = font.render("Points: " + str(score_player), True, (255,255,255))
     screen.blit(score, (x , y ))
+
 
 """--- DRAW ---"""
 def draw_background():
@@ -98,7 +101,7 @@ while running:
     if keys[K_LEFT] and x > 0:
         x -= player_speed
         direction = False          #left
-    if keys[K_RIGHT] and x < 650:
+    if keys[K_RIGHT] and x < 1536:
         x += player_speed
         direction = True           #right
 
@@ -121,7 +124,7 @@ while running:
     for enemy in numb_enemy:
         enemy[0] += enemy[2] * enemy_speed  # side move
         # Rebondir sur les bords
-        if enemy[0] <= 0 or enemy[0] >= 660:
+        if enemy[0] <= 0 or enemy[0] >= 1536:
             enemy[2] *= -1  # reset enemy direction
             enemy[1] += 10  # go down a lil at every corner
         
@@ -140,13 +143,16 @@ while running:
     for bullet in bullets:
         screen.blit(fireball_image, (bullet[0], bullet[1]))
 
-        """--- COLISION FIREBAL L → ENEMY ---"""
-        if len(numb_enemy) >0:
-            if colision(bullet[0],enemy[0],bullet[1],enemy[1]):
-                score_player +=1
-                show_score(10,10)
-        else :
-            print('YOU WIN')
+        """--- COLISION FIREBALL → ENEMY ---"""
+        for enemy in numb_enemy:
+            if len(numb_enemy) >0:
+                if colision(bullet[0],enemy[0],bullet[1],enemy[1]):
+                    score_player +=1
+                    show_score(10,10)
+                    numb_enemy.remove(enemy)
+
+            if len(numb_enemy) == 0 :
+                print('YOU WIN')
     
         
 
@@ -160,7 +166,7 @@ while running:
             if colision(x,enemy[0],y,enemy[1]):
                 player_life -= 1
         if player_life == 0 :
-            print("YOU LOOSE")
+            break
 
     
         
