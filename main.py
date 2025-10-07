@@ -14,22 +14,20 @@ fireball_image =  pygame.transform.scale((pygame.image.load('fireball.png')),(10
 #set player
 player_image =  pygame.transform.scale((pygame.image.load('mario.png')),(50,50))
 #background image
-bg_image = pygame.image.load('background.png')
-bg_menu = pygame.image.load("backmenu2.png")
+bg_image = pygame.image.load('backgame.png')
+bg_menu = pygame.image.load("menuback.png")
 
 #enemy image
 enemy_image = pygame.transform.scale((pygame.image.load('mario.png')),(60,60))
 
 game_state = "menu" 
-
+screen = pygame.display.set_mode((1248,832))
 start_rect = pygame.Rect(360, 250, 810, 260)
 exit_rect = pygame.Rect(610,550,320,120)
 
-
-
 """--- SET SCREEN ---"""
 #set screen
-screen = pygame.display.set_mode((1536,1024))
+screen = pygame.display.set_mode((1248,832))
 
 
 clock = pygame.time.Clock()
@@ -95,18 +93,19 @@ while running:
 
         """--- MENU ---"""
         if game_state == "menu":
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = event.pos
-                    if start_rect.collidepoint(mouse_pos):
-    
-                        game_state = "game"
-                    elif exit_rect.collidepoint(mouse_pos):
-                        running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if start_rect.collidepoint(mouse_pos):
+
+                    game_state = "game"
+                elif exit_rect.collidepoint(mouse_pos):
+                    running = False
 
         elif game_state == "game":
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # revenir au menu
                     game_state = "menu"
+    
 
     if game_state == "menu":
         screen.blit(bg_menu, (0, 0))

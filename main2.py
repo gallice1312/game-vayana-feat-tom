@@ -2,20 +2,20 @@ import pygame
 pygame.init()
 
 # --- SETUP ---
-screen = pygame.display.set_mode((1536, 1024))
+screen = pygame.display.set_mode((1248, 832))
 pygame.display.set_caption("Mario Game")
 clock = pygame.time.Clock()
 
-bg_menu = pygame.image.load("backmenu2.png")
-bg_game = pygame.image.load("background.png")
-bg_pause = pygame.image.load()
+bg_menu = pygame.image.load("menuback.png")
+bg_game = pygame.image.load("backgame.png")
 
 game_state = "menu" 
 
 # --- RECTANGLES DU MENU ---
 start_rect = pygame.Rect(360, 250, 810, 260)
 exit_rect = pygame.Rect(610,550,320,120)
-
+pygame.draw.rect(screen, (255, 0, 0), start_rect, 3)
+pygame.draw.rect(screen, (0, 255, 0), exit_rect, 3)
 # --- VARIABLES DU JEU ---
 x, y = 100, 500
 velocity = 10
