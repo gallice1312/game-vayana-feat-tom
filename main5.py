@@ -1,4 +1,3 @@
-
 #import module pygame
 import pygame
 from pygame.locals import *
@@ -8,45 +7,62 @@ import random
 def reset_game():
     global x, y, player_life, score_player, bullets, numb_enemy, lvl_state
 
-    # Réinitialiser la position du joueur
+    # update player positioin
     x = 350
     y = 620
 
-    # Réinitialiser les points de vie et le score
+    # update score and life
     player_life = 3
     score_player = 0
 
-    # Supprimer toutes les balles
+    # delet all bullet
     bullets = []
 
-    # Recréer les ennemis
+    # draw all enmys
     numb_enemy.clear()
     for i in range(1, 30):
-        numb_enemy.append([random.randint(50, 400), random.randint(50, 400), random.choice([1, -1])])
+        numb_enemy.append([random.randint(30, 350), random.randint(30, 350), random.choice([1, -1])])
 
 
 
 
 #pygame setup 
 pygame.init()
+pygame.mixer.init()
 running = True
+
+
+
 
 """--- IMAGE ---"""
 #fireball image
-fireball_image =  pygame.transform.scale((pygame.image.load('fireball.png')),(20,20))
-#set player
-player_image =  pygame.transform.scale((pygame.image.load('mario.png')),(70,70))
+fireball_image =  pygame.transform.scale((pygame.image.load('img/fireball.png')),(20,20))
+#set player right
+player_image =  pygame.transform.scale((pygame.image.load('img/mario.png')),(70,70))
+#set player left
+player_image_left =  pygame.transform.scale((pygame.image.load('img/mario_left.png')),(70,70))
 #enemy image
-enemy_image = pygame.transform.scale((pygame.image.load('bowserjr.png')),(70,70))
-#background image
-bg_image = pygame.image.load('backgame.png')
-bg_menu = pygame.image.load("backmenu.png")
-bg_pausemenu = pygame.image.load("pausemenu.png")
-bg_lose=pygame.image.load("youlose.png")
-bg_win=pygame.image.load("youwin.png")
-bg_levels=pygame.image.load("levels.png")
-bg_winboss=pygame.image.load("youwinboss.png")
+enemy_image = pygame.transform.scale((pygame.image.load('img/bowserjr.png')),(70,80))
+#browser image
+bowser_image = pygame.transform.scale((pygame.image.load('img/bigbowser.png')),(140,140))
+#explosion image 
+explosion = pygame.transform.scale((pygame.image.load('img/explosion.png')),(80,80))
+#full heart
+full_heart = pygame.transform.scale((pygame.image.load('img/fullheart.png')),(30,30))
+#empty heart
 
+
+
+#background image
+bg_image = pygame.image.load('img/backgame.png')
+bg_menu = pygame.image.load("img/backmenu.png")
+bg_pausemenu = pygame.image.load("img/pausemenu.png")
+bg_lose=pygame.image.load("img/youlose.png")
+bg_win=pygame.image.load("img/youwin.png")
+bg_levels=pygame.image.load("img/levels.png")
+bg_winboss=pygame.image.load("img/youwinboss.png")
+
+"""--- SET BUTTON ---"""
 screen = pygame.display.set_mode((1248,832))
 start_rect = pygame.Rect(300, 200, 650, 200)
 exit_rect = pygame.Rect(510,530,220,80)
@@ -64,14 +80,21 @@ boss_rect=pygame.Rect(270,475,410,125)
 startlevel_rect=pygame.Rect(680,510,185,60)
 back_rect=pygame.Rect(1130,20,105,50)
 
+"""--- SOUND EFFECT ---"""
+fireball_sound = pygame.mixer.Sound('sound/fireballsoundeffect.wav')
+browser_jr_screem = pygame.mixer.Sound('sound/BowserJrscreaming.wav')
+win_sound = pygame.mixer.Sound('sound/winsound.wav')
+	
+browser_jr_screem.set_volume(0.1)
+
 """--- SET SCREEN ---"""
 #set screen
 screen = pygame.display.set_mode((1248,832))
 clock = pygame.time.Clock()
+
 islevel1_selected=False
 islevel2_selected=False
 isboss_selected=False
-
 
 """--- PLAYER SETTINGS ---"""
 #player direction
@@ -85,11 +108,12 @@ player_life = 3
 """--- ENEMY SETTINGS ---"""
 numb_enemy = []
 for i in range(1,15):   
-    numb_enemy.append([random.randint(50,400),random.randint(50,400),random.choice([1,-1])])
+    numb_enemy.append([random.randint(30,350),random.randint(30,350),random.choice([1,-1])])
 
 
-#numb_enemy = [[50,50,-1],[250,50,-1],[300,380,1],[210,430,1],[200,100,-1],[340,50,1],[250,50,-1],[220,100,-1],[400,300,1],[120,120,-1]]
-
+"""--- BIG BOWSER ---"""
+bowser = [x,80,1]
+bowser_life = 50
 
 
 """--- COLISION --"""
@@ -101,37 +125,42 @@ def colision(x,enemy_x,y,enemy_y):
         return False
     
 """--- FONT ---"""
-font = pygame.font.Font('PixelifySans-VariableFont_wght.ttf', 30)
+font = pygame.font.Font('font/PixelifySans-VariableFont_wght.ttf', 40)
 
 """--- SHOW SCORE ---"""
 #Score
 score_player = 0
 def show_score(x,y):
-    score = font.render("SCORE : " + str(score_player), True, (255,255,255))
+    score = font.render("SCORE : " + str(score_player), True, (0,0,0))
     screen.blit(score, (x , y ))
 
+
 def show_life(x,y):
-    life = font.render("LIFE : " + str(player_life), True, (255,255,255))
-    screen.blit(life, (x , y ))
+    for i in range (player_life) :
+        screen.blit(full_heart, (x , y ))
+        x += 30
 
 """--- DRAW ---"""
 def draw_background():
     screen.blit(bg_image,(0,0))
 def draw_player(x,y):
-    screen.blit(player_image, (x,y))
+    screen.blit(player_image,(x,y))
+def draw_player_left(x,y):
+    screen.blit(player_image_left,(x,y))
+
 
 """--- BULLET SETTINGS ---"""
 bullet_speed = -15  # vers le haut
 bullets = [] 
-    
-#initiate with menu
+
+
+# initiate with menu
 game_state = "menu" 
 
 lvl_state = "level1"
 """--- MAIN LOOP ---"""
 while running:
     
-    # Set the frame rates to 60 fps
     clock.tick(60)
     
     
@@ -233,6 +262,7 @@ while running:
         screen.blit(bg_menu, (0, 0))
     if game_state =="win" :
         screen.blit(bg_win,(0,0))
+        #win_sound.play()
     if game_state =="loose" :
         screen.blit(bg_lose,(0,0))
     if game_state=="pause":
@@ -246,20 +276,24 @@ while running:
         if isboss_selected==True:
             pygame.draw.rect(screen, (255, 5, 5), boss_rect, 4)  # START (bordure rouge)
     if game_state=="winboss":
+        #win_sound.play()
         screen.blit(bg_winboss,(0,0))
+         
 
 
     if game_state == "game":
         screen.blit(bg_image, (0, 0)) 
         if lvl_state == 'level1':
             enemy_speed = 7
-            numb_enemy = numb_enemy[:5]
+            numb_enemy = numb_enemy[:7]
         if lvl_state == 'level2':
             enemy_speed = 10
-            numb_enemy = numb_enemy[:8]
+            numb_enemy = numb_enemy[:10]
         if lvl_state == 'boss':
             enemy_speed = 20
             numb_enemy = numb_enemy
+
+            
 
 
         """--- MOVEMENT KEYS """
@@ -267,14 +301,15 @@ while running:
         keys = pygame.key.get_pressed()
         if keys[K_LEFT] and x > 0:
             x -= player_speed
-            direction = False          #left
+            direction = False          #left            
         if keys[K_RIGHT] and x < 1200:
             x += player_speed
-            direction = True           #right
+            direction = True            #right
         if keys[K_SPACE]:
         # create new fireball
-            #not more than 10 fireball displayed on the screen
-            if len(bullets) < 5:
+            #not more than 1 fireball displayed on the screen
+            if len(bullets) < 1:
+                fireball_sound.play()
                 bullet_x = x + 10  # on the player
                 bullet_y = y 
                 bullets.append([bullet_x, bullet_y])
@@ -290,21 +325,24 @@ while running:
         for enemy in numb_enemy:
             enemy[0] += enemy[2] * enemy_speed  # side move
             # Rebondir sur les bords
-            if enemy[0] <= 0 or enemy[0] >= 1200:
+            if enemy[0] <= 0 or enemy[0] >= 1200 and enemy[1] <810:
                 enemy[2] *= -1  # reset enemy direction
                 enemy[1] += 40  # go down a lil at every corner
+        
             
             
             
         """--- DRAW EVERYTHING---"""
         #draw background
         draw_background()
-        #draww player
-        draw_player(x,y)
+        if direction == False :
+            draw_player_left(x,y)
+        if direction == True :
+            draw_player(x,y)
         #draw score
         show_score(10,10)
         #draww score
-        show_life(10,40)
+        show_life(10,60)
         
         
         #draw fire ball
@@ -316,9 +354,13 @@ while running:
                 if len(numb_enemy) >0:
                 
                     if colision(bullet[0],enemy[0]+20,bullet[1],enemy[1]+20):
+                        screen.blit(explosion,(enemy[0],enemy[1]))
+                        browser_jr_screem.play()  
                         score_player +=1
                         show_score(10,20)
                         numb_enemy.remove(enemy)
+                        bullets.remove(bullet)
+
                 if len(numb_enemy) == 0 :
                     if lvl_state=="level1"or lvl_state=="level2":
                         game_state = 'win'
@@ -334,7 +376,12 @@ while running:
                 if colision(x,enemy[0]+20,y,enemy[1]+20):
                     numb_enemy.remove(enemy)
                     player_life -= 1
-                    show_life(10,40)
+                    show_life(10,60)
+                if len(numb_enemy) == 0 :
+                    if lvl_state=="level1"or lvl_state=="level2":
+                        game_state = 'win'
+                    elif lvl_state=="boss":
+                        game_state="winboss"
             if player_life == 0 :
                 game_state = 'loose'
     
