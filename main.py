@@ -5,6 +5,28 @@ from pygame.locals import *
 import math
 import random
 
+def reset_game():
+    global x, y, player_life, score_player, bullets, numb_enemy, lvl_state
+
+    # Réinitialiser la position du joueur
+    x = 350
+    y = 620
+
+    # Réinitialiser les points de vie et le score
+    player_life = 3
+    score_player = 0
+
+    # Supprimer toutes les balles
+    bullets = []
+
+    # Recréer les ennemis
+    numb_enemy.clear()
+    for i in range(1, 30):
+        numb_enemy.append([random.randint(50, 400), random.randint(50, 400), random.choice([1, -1])])
+
+
+
+
 #pygame setup 
 pygame.init()
 running = True
@@ -15,17 +37,32 @@ fireball_image =  pygame.transform.scale((pygame.image.load('fireball.png')),(20
 #set player
 player_image =  pygame.transform.scale((pygame.image.load('mario.png')),(70,70))
 #enemy image
-enemy_image = pygame.transform.scale((pygame.image.load('spaceship.png')),(70,70))
+enemy_image = pygame.transform.scale((pygame.image.load('bowserjr.png')),(70,70))
 #background image
 bg_image = pygame.image.load('backgame.png')
-bg_menu = pygame.image.load("menuback.png")
-
-
-
+bg_menu = pygame.image.load("backmenu.png")
+bg_pausemenu = pygame.image.load("pausemenu.png")
+bg_lose=pygame.image.load("youlose.png")
+bg_win=pygame.image.load("youwin.png")
+bg_levels=pygame.image.load("levels.png")
+bg_winboss=pygame.image.load("youwinboss.png")
 
 screen = pygame.display.set_mode((1248,832))
-
-
+start_rect = pygame.Rect(300, 200, 650, 200)
+exit_rect = pygame.Rect(510,530,220,80)
+levels_rect = pygame.Rect(440,430,360,90)
+continue_rect= pygame.Rect(390,380,470,80)
+retrymenu_rect=pygame.Rect(485,460,300,80)
+retry_rect=pygame.Rect(470,300,305,100)
+quitlosewin_rect=pygame.Rect(500,500,250,90)
+menuwinlose_rect=pygame.Rect(490,405,270,90)
+levelup_rect=pygame.Rect(420,300,430,100)
+menupause_rect=pygame.Rect(510,541,250,80)
+level1_rect=pygame.Rect(280,235,485,100)
+level2_rect=pygame.Rect(280,360,485,100)
+boss_rect=pygame.Rect(280,485,330,100)
+startlevel_rect=pygame.Rect(680,510,185,60)
+back_rect=pygame.Rect(1130,20,105,50)
 
 """--- SET SCREEN ---"""
 #set screen
@@ -107,34 +144,95 @@ while running:
 
         """--- MENU ---"""
         if game_state == "menu":
-            start_rect = pygame.Rect(360, 250, 810, 260)
-            exit_rect = pygame.Rect(610,550,320,120)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 if start_rect.collidepoint(mouse_pos):
 
                     game_state = "game"
-                elif exit_rect.collidepoint(mouse_pos):
+                if levels_rect.collidepoint(mouse_pos):
+                    game_state= "levels"
+                if exit_rect.collidepoint(mouse_pos):
                     running = False
-
-        elif game_state == "game":
+        if game_state == "levels":
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if level1_rect.collidepoint(mouse_pos):
+                    lvl_state= "level1"
+                if level2_rect.collidepoint(mouse_pos):
+                    lvl_state= "level2"
+                if boss_rect.collidepoint(mouse_pos):
+                    lvl_state="boss"
+                if startlevel_rect.collidepoint(mouse_pos):
+                    game_state="game"
+                if back_rect.collidepoint(mouse_pos):
+                    game_state="menu"
+        if game_state == "game":
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # revenir au menu
+                    game_state = "pause"
+        if game_state == "pause":
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if continue_rect.collidepoint(mouse_pos):
+                    game_state = "game"
+                if retrymenu_rect.collidepoint(mouse_pos):
+                   reset_game()
+                   game_state="game"
+                if menupause_rect.collidepoint(mouse_pos):
+                    reset_game()
                     game_state = "menu"
+        if game_state=="loose":
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if retry_rect.collidepoint(mouse_pos):
+                    reset_game()
+                    game_state = "game"
+                if menuwinlose_rect.collidepoint(mouse_pos):
+                    reset_game()
+                    game_state="menu"
+                elif quitlosewin_rect.collidepoint(mouse_pos):
+                    running = False
+        if game_state=="win":
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if levelup_rect.collidepoint(mouse_pos):
+                    if lvl_state =="level1":
+                        lvl_state="level2"
+                        reset_game()
+                        game_state="game"
+                    elif lvl_state=="level2":
+                        lvl_state="boss"
+                        reset_game()
+                        game_state="game"
+                if menuwinlose_rect.collidepoint(mouse_pos):
+                    reset_game()
+                    game_state="menu"
+                elif quitlosewin_rect.collidepoint(mouse_pos):
+                    running = False
+        if game_state=="winboss":
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if menuwinlose_rect.collidepoint(mouse_pos):
+                    lvl_state="level1"
+                    reset_game()
+                    game_state="menu"
+                elif quitlosewin_rect.collidepoint(mouse_pos):
+                    running = False
     
-
     if game_state == "menu":
         screen.blit(bg_menu, (0, 0))
-
     if game_state =="win" :
-        screen.blit(bg_image,(0,0))
-
+        screen.blit(bg_win,(0,0))
     if game_state =="loose" :
-        screen.blit(bg_image,(0,0))
+        screen.blit(bg_lose,(0,0))
+    if game_state=="pause":
+        screen.blit(bg_pausemenu,(0,0)) 
+    if game_state=="levels":
+        screen.blit(bg_levels,(0,0))
+    if game_state=="winboss":
+        screen.blit(bg_winboss,(0,0))
 
-
-
-    elif game_state == "game":
+    if game_state == "game":
         screen.blit(bg_image, (0, 0)) 
         if lvl_state == 'level1':
             enemy_speed = 7
@@ -142,8 +240,8 @@ while running:
         if lvl_state == 'level2':
             enemy_speed = 10
             numb_enemy = numb_enemy[:8]
-        if lvl_state == 'level3':
-            enemy_speed = 15
+        if lvl_state == 'boss':
+            enemy_speed = 20
             numb_enemy = numb_enemy
 
 
@@ -205,9 +303,10 @@ while running:
                         show_score(10,20)
                         numb_enemy.remove(enemy)
                 if len(numb_enemy) == 0 :
-                    game_state = 'win'
-    
-        
+                    if lvl_state=="level1"or lvl_state=="level2":
+                        game_state = 'win'
+                    elif lvl_state=="boss":
+                        game_state="winboss"
 
         #draw enemy
         for enemy in numb_enemy:
