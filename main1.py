@@ -58,9 +58,9 @@ quitlosewin_rect=pygame.Rect(500,500,250,90)
 menuwinlose_rect=pygame.Rect(490,405,270,90)
 levelup_rect=pygame.Rect(420,300,430,100)
 menupause_rect=pygame.Rect(510,541,250,80)
-level1_rect=pygame.Rect(280,235,485,100)
-level2_rect=pygame.Rect(280,360,485,100)
-boss_rect=pygame.Rect(280,485,330,100)
+level1_rect=pygame.Rect(270,220,500,130)
+level2_rect=pygame.Rect(270,350,508,125)
+boss_rect=pygame.Rect(270,475,410,125)
 startlevel_rect=pygame.Rect(680,510,185,60)
 back_rect=pygame.Rect(1130,20,105,50)
 
@@ -68,7 +68,9 @@ back_rect=pygame.Rect(1130,20,105,50)
 #set screen
 screen = pygame.display.set_mode((1248,832))
 clock = pygame.time.Clock()
-
+islevel1_selected=False
+islevel2_selected=False
+isboss_selected=False
 
 
 """--- PLAYER SETTINGS ---"""
@@ -147,7 +149,6 @@ while running:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 if start_rect.collidepoint(mouse_pos):
-
                     game_state = "game"
                 if levels_rect.collidepoint(mouse_pos):
                     game_state= "levels"
@@ -157,10 +158,19 @@ while running:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 if level1_rect.collidepoint(mouse_pos):
+                    islevel2_selected=False
+                    isboss_selected=False
+                    islevel1_selected=True
                     lvl_state= "level1"
                 if level2_rect.collidepoint(mouse_pos):
+                    islevel1_selected=False
+                    isboss_selected=False
+                    islevel2_selected=True
                     lvl_state= "level2"
                 if boss_rect.collidepoint(mouse_pos):
+                    islevel1_selected=False
+                    islevel2_selected=False
+                    isboss_selected=True
                     lvl_state="boss"
                 if startlevel_rect.collidepoint(mouse_pos):
                     game_state="game"
@@ -229,8 +239,15 @@ while running:
         screen.blit(bg_pausemenu,(0,0)) 
     if game_state=="levels":
         screen.blit(bg_levels,(0,0))
+        if islevel1_selected == True:
+           pygame.draw.rect(screen, (255, 0, 0), level1_rect, 4)  # START (bordure rouge)
+        if islevel2_selected==True:
+            pygame.draw.rect(screen, (255, 0, 0), level2_rect, 4)  # START (bordure rouge)
+        if isboss_selected==True:
+            pygame.draw.rect(screen, (255, 5, 5), boss_rect, 4)  # START (bordure rouge)
     if game_state=="winboss":
         screen.blit(bg_winboss,(0,0))
+
 
     if game_state == "game":
         screen.blit(bg_image, (0, 0)) 
