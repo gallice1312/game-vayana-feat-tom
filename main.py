@@ -21,7 +21,7 @@ def reset_game():
     # draw all enmys
     numb_enemy.clear()
     for i in range(1, 30):
-        numb_enemy.append([random.randint(30, 350), random.randint(30, 350), random.choice([1, -1])])
+        numb_enemy.append([random.randint(30, 350), random.randint(-5, 20), random.choice([1, -1])])
 
 
 
@@ -35,7 +35,7 @@ running = True
 
 
 """--- IMAGE ---"""
-#fireball image
+#fireball image              
 fireball_image =  pygame.transform.scale((pygame.image.load('img/fireball.png')),(20,20))
 #set player right
 player_image =  pygame.transform.scale((pygame.image.load('img/mario.png')),(70,70))
@@ -44,9 +44,11 @@ player_image_left =  pygame.transform.scale((pygame.image.load('img/mario_left.p
 #enemy image
 enemy_image = pygame.transform.scale((pygame.image.load('img/bowserjr.png')),(70,80))
 #browser image
-bowser_image = pygame.transform.scale((pygame.image.load('img/bigbowser.png')),(140,140))
+bowser_image = pygame.transform.scale((pygame.image.load('img/bigbowser.png')),(180,140))
 #explosion image 
 explosion = pygame.transform.scale((pygame.image.load('img/explosion.png')),(80,80))
+#boss explosion
+boss_explosion = pygame.transform.scale((pygame.image.load('img/explosion.png')),(200,200))
 #full heart
 full_heart = pygame.transform.scale((pygame.image.load('img/fullheart.png')),(30,30))
 #empty heart
@@ -85,12 +87,12 @@ fireball_sound = pygame.mixer.Sound('sound/fireballsoundeffect.wav')
 browser_jr_screem = pygame.mixer.Sound('sound/BowserJrscreaming.wav')
 win_sound = pygame.mixer.Sound('sound/winsound.wav')
 	
-browser_jr_screem.set_volume(0.1)
+browser_jr_screem.set_volume(0.2)
 
 """--- SET SCREEN ---"""
 #set screen
 screen = pygame.display.set_mode((1248,832))
-clock = pygame.time.Clock()
+
 
 islevel1_selected=False
 islevel2_selected=False
@@ -104,16 +106,19 @@ player_speed = 10
 x =350
 y=620
 player_life = 3
+vel_y = 0
+gravity = 1
+is_jumping = False
 
 """--- ENEMY SETTINGS ---"""
 numb_enemy = []
 for i in range(1,15):   
-    numb_enemy.append([random.randint(30,350),random.randint(30,350),random.choice([1,-1])])
+    numb_enemy.append([random.randint(30,350),random.randint(-5,20),random.choice([1,-1])])
 
 
 """--- BIG BOWSER ---"""
-bowser = [x,80,1]
-bowser_life = 50
+bowser = [[x,80,1]]
+bowser_life = 5
 
 
 """--- COLISION --"""
@@ -134,7 +139,13 @@ def show_score(x,y):
     score = font.render("SCORE : " + str(score_player), True, (0,0,0))
     screen.blit(score, (x , y ))
 
+"""--- SHOW LEVEL ---"""
+def show_lvl(x,y):
+    score = font.render(lvl_state.upper(), True, (0,0,0))
+    screen.blit(score, (x , y ))
 
+
+"""--- SHOW LIFE ---"""
 def show_life(x,y):
     for i in range (player_life) :
         screen.blit(full_heart, (x , y ))
@@ -152,6 +163,7 @@ def draw_player_left(x,y):
 """--- BULLET SETTINGS ---"""
 bullet_speed = -15  # vers le haut
 bullets = [] 
+bullets_to_remove = []
 
 
 # initiate with menu
@@ -161,7 +173,9 @@ lvl_state = "level1"
 """--- MAIN LOOP ---"""
 while running:
     
-    clock.tick(60)
+    """--- TIME ---"""
+    clock = pygame.time.Clock()
+    current_time = clock.tick(60)
     
     
     """--- EVENT ---"""
@@ -207,6 +221,10 @@ while running:
                     game_state="menu"
         if game_state == "game":
             if event.type == pygame.KEYDOWN:
+                if event.key== pygame.K_UP:
+                    if not is_jumping:
+                        is_jumping=True
+                        vel_y=-20
                 if event.key == pygame.K_ESCAPE:  # revenir au menu
                     game_state = "pause"
         if game_state == "pause":
@@ -286,13 +304,19 @@ while running:
         if lvl_state == 'level1':
             enemy_speed = 7
             numb_enemy = numb_enemy[:7]
+            move = 50
+            coll = 50
         if lvl_state == 'level2':
             enemy_speed = 10
             numb_enemy = numb_enemy[:10]
+            move = 50
+            coll = 50
         if lvl_state == 'boss':
-            enemy_speed = 20
-            numb_enemy = numb_enemy
-
+            enemy_speed = 15
+            numb_enemy = bowser
+            move = 80
+            player_life = 1
+            coll = 110
             
 
 
@@ -313,6 +337,14 @@ while running:
                 bullet_x = x + 10  # on the player
                 bullet_y = y 
                 bullets.append([bullet_x, bullet_y])
+        if is_jumping:
+            y += vel_y
+            vel_y += gravity
+
+        if y>=620:
+            y = 620
+            vel_y=0
+            is_jumping = False
 
         """--- UPDATE BULLET POSITIONS ---"""
         for bullet in bullets[:]:
@@ -324,14 +356,27 @@ while running:
         """--- UPDATE ENEMIES ---"""
         for enemy in numb_enemy:
             enemy[0] += enemy[2] * enemy_speed  # side move
-            # Rebondir sur les bords
-            if enemy[0] <= 0 or enemy[0] >= 1200 and enemy[1] <810:
-                enemy[2] *= -1  # reset enemy direction
-                enemy[1] += 40  # go down a lil at every corner
+        
+            # Reverse direction at left/right borders
+            if enemy[0] <= 0:
+                enemy[0] = 0
+                enemy[2] *= -1
+                enemy[1] += move  # move down a bit
+            elif enemy[0] >= 1200 - 70:  # 70 = enemy width
+                enemy[0] = 1200 - 70
+                enemy[2] *= -1
+                enemy[1] += move  # move down a bit
+
+            # Prevent enemy from going below or above visible area
+            if enemy[1] < 0:
+                enemy[1] = 0
+            elif enemy[1] > 832 - 80:  # 80 = enemy height
+                enemy[1] -= 80
+
+        
         
             
-            
-            
+                     
         """--- DRAW EVERYTHING---"""
         #draw background
         draw_background()
@@ -340,26 +385,41 @@ while running:
         if direction == True :
             draw_player(x,y)
         #draw score
-        show_score(10,10)
+        show_score(10,20)
         #draww score
-        show_life(10,60)
-        
-        
-        #draw fire ball
-        for bullet in bullets:
-            screen.blit(fireball_image, (bullet[0], bullet[1]))
-
-            """--- COLISION FIREBALL → ENEMY ---"""
-            for enemy in numb_enemy:
-                if len(numb_enemy) >0:
+        show_life(10,80)
+        #draw lvl
+        show_lvl(1100,10)
                 
-                    if colision(bullet[0],enemy[0]+20,bullet[1],enemy[1]+20):
-                        screen.blit(explosion,(enemy[0],enemy[1]))
-                        browser_jr_screem.play()  
-                        score_player +=1
-                        show_score(10,20)
+        #draw fire ball
+        for bullet in bullets[:]:
+            screen.blit(fireball_image, (bullet[0], bullet[1]))
+            """--- COLISION FIREBALL → ENEMY ---"""
+            for enemy in numb_enemy[:]:
+                if len(numb_enemy) >0:
+                    
+                    if colision(bullet[0],enemy[0]+coll,bullet[1],enemy[1]+coll):
+                        if lvl_state != 'boss':
+                            screen.blit(explosion,(enemy[0],enemy[1]))
+                            browser_jr_screem.play()  
+                            score_player +=1
+                            show_score(10,20)
+                            if bullet not in bullets_to_remove:
+                                bullets_to_remove.append(bullet)
+
+                            numb_enemy.remove(enemy)
+                            print(bullet)
+                            bullets.remove(bullet)
+                        if lvl_state == 'boss' and bowser_life != 0:
+                            screen.blit(boss_explosion,(enemy[0],enemy[1]))
+                            browser_jr_screem.play()  
+                            score_player +=1
+                            show_score(10,20)
+                            bowser_life-=1
+                            bullets.remove(bullet)
+                    if lvl_state == 'boss' and bowser_life == 0:
                         numb_enemy.remove(enemy)
-                        bullets.remove(bullet)
+                
 
                 if len(numb_enemy) == 0 :
                     if lvl_state=="level1"or lvl_state=="level2":
@@ -369,14 +429,20 @@ while running:
 
         #draw enemy
         for enemy in numb_enemy:
-            screen.blit(enemy_image, (enemy[0], enemy[1]))
-
+            if lvl_state != 'boss':
+                screen.blit(enemy_image, (enemy[0], enemy[1]))
+            if lvl_state == 'boss':
+                screen.blit(bowser_image, (enemy[0], enemy[1]))
             """--- COLISION ENEMY → PLAYER ---"""
             if player_life >0:
-                if colision(x,enemy[0]+20,y,enemy[1]+20):
-                    numb_enemy.remove(enemy)
-                    player_life -= 1
-                    show_life(10,60)
+                if colision(x,enemy[0]+70,y,enemy[1]+70):
+                    if lvl_state != 'boss':
+                        numb_enemy.remove(enemy)
+                        player_life -= 1
+                        show_life(10,60)
+                    if lvl_state == 'boss':
+                        player_life -= 1
+                        show_life(10,60)
                 if len(numb_enemy) == 0 :
                     if lvl_state=="level1"or lvl_state=="level2":
                         game_state = 'win'
