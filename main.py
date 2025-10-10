@@ -5,23 +5,35 @@ import math
 import random
 
 def reset_game():
-    global x, y, player_life, score_player, bullets, numb_enemy, lvl_state
+    global x, y, player_life, score_player, bullets, numb_enemy, lvl_state, bowser_life
 
-    # update player positioin
+    # position du joueur
     x = 350
     y = 620
 
-    # update score and life
+    # stats du joueur
     player_life = 3
     score_player = 0
 
-    # delet all bullet
+    # projectiles
     bullets = []
 
-    # draw all enmys
+    # réinitialisation du boss
+    bowser_life = 5  
+
+    # réinitialisation des ennemis selon le niveau
     numb_enemy.clear()
-    for i in range(1, 30):
-        numb_enemy.append([random.randint(30, 350), random.randint(-5, 20), random.choice([1, -1])])
+
+    if lvl_state == "level1":
+        for i in range(1, 15):
+            numb_enemy.append([random.randint(30, 1000), random.randint(-5, 20), random.choice([1, -1])])
+    elif lvl_state == "level2":
+        for i in range(1, 20):
+            numb_enemy.append([random.randint(30, 1000), random.randint(-5, 20), random.choice([1, -1])])
+    elif lvl_state == "boss":
+        # un seul boss à chaque reset
+        numb_enemy.append([500, 80, 1])
+
 
 
 
